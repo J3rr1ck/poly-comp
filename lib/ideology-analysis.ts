@@ -8,6 +8,110 @@ interface IdeologyAnalysis {
   color: string
 }
 
+export const ideologyDetailsMap = new Map<string, { description: string }>([
+  [
+    "Fully Automated Luxury Gay Space Communist",
+    {
+      description:
+        "Envisions a post-scarcity future with advanced technology, universal LGBTQ+ rights, and communist expansion to space.",
+    },
+  ],
+  [
+    "Libertarian Socialist",
+    {
+      description:
+        "Advocates for maximal individual freedom alongside collective ownership of production, opposing state and corporate control.",
+    },
+  ],
+  [
+    "Social Liberal",
+    {
+      description: "Supports a mixed economy with strong social safety nets and robust individual freedoms and rights.",
+    },
+  ],
+  [
+    "Crypto-Anarchist",
+    {
+      description:
+        "Advocates for using technology like cryptography and digital currencies to create a stateless, voluntary society.",
+    },
+  ],
+  [
+    "Classical Liberal",
+    {
+      description: "Emphasizes free markets, individual liberty, and limited government intervention in economic and personal life.",
+    },
+  ],
+  [
+    "Moderate Libertarian",
+    {
+      description:
+        "Favors free markets and personal liberty while accepting a pragmatic, limited role for government in certain areas.",
+    },
+  ],
+  [
+    "Eco-Socialist",
+    {
+      description:
+        "Believes strong state action is vital to address climate change and inequality, potentially restructuring the economy on socialist lines.",
+    },
+  ],
+  [
+    "Social Democrat",
+    {
+      description:
+        "Supports a strong welfare state, government regulation, and democratic institutions to achieve social and economic equality.",
+    },
+  ],
+  [
+    "Neo-Reactionary",
+    {
+      description:
+        "Rejects democracy for more hierarchical governance models, sometimes envisioning corporate city-states or monarchies.",
+    },
+  ],
+  [
+    "Alt-Right",
+    {
+      description: "Focuses on cultural preservation and identity, often with nationalist and traditionalist social views.",
+    },
+  ],
+  [
+    "Conservative",
+    {
+      description: "Supports free-market principles combined with traditional social values and strong, established institutions.",
+    },
+  ],
+  [
+    "Centrist",
+    {
+      description:
+        "Holds a moderate political position, balancing elements from different ideologies to find pragmatic solutions.",
+    },
+  ],
+  [
+    "Accelerationist Tendencies",
+    {
+      description:
+        "Believes in accelerating societal change, often through technology or radical politics, towards a transformed future.",
+    },
+  ],
+  [
+    "Post-Liberal",
+    {
+      description:
+        "Critiques aspects of classical liberalism, often emphasizing community, tradition, or new forms of social order.",
+    },
+  ],
+  [
+    "Anarchist Sympathies",
+    {
+      description:
+        "Expresses affinity with anarchist ideals such as decentralization, voluntary association, and skepticism of authority.",
+    },
+  ],
+])
+
 export function getIdeologyAnalysis(economic: number, social: number): IdeologyAnalysis {
   const isLeft = economic < 0
   const isLibertarian = social < 0
@@ -228,24 +332,95 @@ export function getIdeologyAnalysis(economic: number, social: number): IdeologyA
 
   const secondaryIdeologies: string[] = []
 
-  // Add modern ideological tendencies
+  // Existing secondary ideologies logic - will be kept for now
   if (Math.abs(economic) < 3 && Math.abs(social) < 3) {
-    secondaryIdeologies.push("Centrist")
+    if (!secondaryIdeologies.includes("Centrist")) {
+      secondaryIdeologies.push("Centrist")
+    }
   }
 
   if (economicIntensity > 6 || socialIntensity > 6) {
-    secondaryIdeologies.push("Accelerationist Tendencies")
+    if (!secondaryIdeologies.includes("Accelerationist Tendencies")) {
+      secondaryIdeologies.push("Accelerationist Tendencies")
+    }
   }
 
-  if (social < -5) {
-    secondaryIdeologies.push("Post-Liberal")
+  // Note: The original logic for Post-Liberal and Anarchist Sympathies might overlap
+  // or conflict with the new detailed ideology definitions.
+  // For now, we are adding the new logic additively.
+  // A future refactor might integrate these more cleanly.
+
+  if (social < -5) { // This is a broad condition for Post-Liberal
+    if (!secondaryIdeologies.includes("Post-Liberal")) {
+      secondaryIdeologies.push("Post-Liberal")
+    }
   }
 
-  if (economic < -5 && social < -3) {
-    secondaryIdeologies.push("Anarchist Sympathies")
+  if (economic < -5 && social < -3) { // This is a broad condition for Anarchist Sympathies
+    if (!secondaryIdeologies.includes("Anarchist Sympathies")) {
+      secondaryIdeologies.push("Anarchist Sympathies")
+    }
   }
+
+  // Define alternative/future ideologies and their conditions
+  const alternativeIdeologies = [
+    {
+      name: "Fully Automated Luxury Gay Space Communist",
+      isPrimary: () => economic < 0 && isLibertarian && economicIntensity > 7 && socialIntensity > 7,
+      isSecondary: () => economic < 0 && isLibertarian && economicIntensity > 5 && socialIntensity > 5,
+    },
+    {
+      name: "Crypto-Anarchist",
+      isPrimary: () => economic > 0 && isLibertarian && economicIntensity > 7 && socialIntensity > 7,
+      isSecondary: () => economic > 0 && isLibertarian && economicIntensity > 5 && socialIntensity > 5,
+    },
+    {
+      name: "Neo-Reactionary",
+      isPrimary: () => economic > 0 && !isLibertarian && economicIntensity > 7 && socialIntensity > 7,
+      isSecondary: () => economic > 0 && !isLibertarian && economicIntensity > 5 && socialIntensity > 5,
+    },
+    {
+      name: "Eco-Socialist",
+      isPrimary: () => economic < 0 && !isLibertarian && economicIntensity > 6 && socialIntensity > 6,
+      isSecondary: () => economic < 0 && !isLibertarian && economicIntensity > 4 && socialIntensity > 4,
+    },
+    {
+      name: "Alt-Right",
+      isPrimary: () => economic > 0 && !isLibertarian && socialIntensity > 5 && economicIntensity < 3,
+      isSecondary: () => economic > 0 && !isLibertarian && socialIntensity > 3 && economicIntensity < 5,
+    },
+    // "Accelerationist Tendencies", "Post-Liberal", "Anarchist Sympathies" are already handled by existing broader logic.
+    // We can refine this later if needed to use these specific structures.
+  ]
+
+  for (const altIdeology of alternativeIdeologies) {
+    if (altIdeology.name !== primaryIdeology && altIdeology.isSecondary()) {
+      if (!secondaryIdeologies.includes(altIdeology.name)) {
+        // Check if it meets primary conditions for *this* specific alt ideology
+        // This check is implicitly handled by `altIdeology.name !== primaryIdeology`
+        // because if it were primary for this altIdeology, it would be the primaryIdeology.
+        // However, the primaryIdeology might be a *different* one (e.g. Libertarian Socialist)
+        // while still meeting secondary conditions for FALGSC.
+        secondaryIdeologies.push(altIdeology.name)
+      }
+    }
+  }
+
+  // Ensure existing secondary ideologies are not duplicated if they match new ones
+  // This is a simple way to do it for now. A more robust solution might involve
+  // unifying the definition of all secondary ideologies.
+  const uniqueSecondaryIdeologies = Array.from(new Set(secondaryIdeologies))
 
   return {
+    primaryIdeology,
+    description,
+    characteristics,
+    notableFigures,
+    secondaryIdeologies: uniqueSecondaryIdeologies,
+    modernContext,
+    color,
+  }
+}
     primaryIdeology,
     description,
     characteristics,

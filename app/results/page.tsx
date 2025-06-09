@@ -7,9 +7,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Share2, Download, RotateCcw, Home, TrendingUp, Users, Brain } from "lucide-react"
 import { PoliticalCompass } from "@/components/political-compass"
-import { getIdeologyAnalysis } from "@/lib/ideology-analysis"
+import { getIdeologyAnalysis, ideologyDetailsMap } from "@/lib/ideology-analysis"
 import { VisualDataBreakdown } from "@/components/visual-data-breakdown"
 import Link from "next/link"
+// Optional: Import Lightbulb if you decide to use it. For now, skipping.
+// import { Lightbulb } from "lucide-react";
 
 interface Results {
   economic: number
@@ -197,18 +199,10 @@ export default function ResultsPage() {
                   </ul>
                 </div>
 
-                {analysis.secondaryIdeologies.length > 0 && (
-                  <div>
-                    <h4 className="font-semibold mb-2 text-gray-800">Secondary Tendencies</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {analysis.secondaryIdeologies.map((ideology: string, index: number) => (
-                        <Badge key={index} variant="outline" className="text-xs">
-                          {ideology}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                {/*
+                  The existing secondary ideologies display as badges was here.
+                  It has been removed as per instructions to create a new detailed card.
+                */}
               </CardContent>
             </Card>
           </div>
@@ -244,6 +238,31 @@ export default function ResultsPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Explore Related Ideologies Card */}
+          {analysis.secondaryIdeologies && analysis.secondaryIdeologies.length > 0 && (
+            <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm mb-8">
+              <CardHeader className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-t-lg">
+                <CardTitle className="flex items-center gap-2">
+                  {/* <Lightbulb className="w-5 h-5 text-yellow-600" /> */}
+                  Explore Related Ideologies
+                </CardTitle>
+                <CardDescription>These are other ideological areas you show some alignment with.</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                {analysis.secondaryIdeologies.map((ideology: string, index: number) => {
+                  const details = ideologyDetailsMap.get(ideology)
+                  return (
+                    <div key={index} className="p-3 rounded-lg bg-gray-50 border border-gray-200 hover:shadow-sm transition-shadow">
+                      <h4 className="font-semibold text-gray-800 mb-1">{ideology}</h4>
+                      {details && <p className="text-sm text-gray-600">{details.description}</p>}
+                      {!details && <p className="text-sm text-gray-500">Description not available.</p>}
+                    </div>
+                  )
+                })}
+              </CardContent>
+            </Card>
+          )}
 
           {/* Test Metadata */}
           <div className="text-center text-sm text-gray-500">
