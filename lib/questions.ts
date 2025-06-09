@@ -101,7 +101,7 @@ export const questions: Question[] = [
     text: "Cryptocurrency should replace traditional government-controlled currencies.",
     dimension: "economic",
     weight: 1.2,
-    category: "currency",
+    category: "crypto_anarchist",
   },
   {
     id: 13,
@@ -149,7 +149,7 @@ export const questions: Question[] = [
     text: "Traditional family values are essential for a stable society.",
     dimension: "social",
     weight: 1.3,
-    category: "family",
+    category: "post_liberal",
   },
   {
     id: 19,
@@ -173,7 +173,7 @@ export const questions: Question[] = [
     text: "Western civilization is superior to other cultures and should be preserved at all costs.",
     dimension: "social",
     weight: 1.5,
-    category: "nationalism",
+    category: "alt_right",
     context: "Cultural nationalism perspective",
   },
   {
@@ -181,28 +181,28 @@ export const questions: Question[] = [
     text: "Mass immigration is destroying the cultural identity of Western nations.",
     dimension: "social",
     weight: 1.4,
-    category: "immigration",
+    category: "alt_right",
   },
   {
     id: 23,
     text: "Globalism is a conspiracy by elites to undermine national sovereignty.",
     dimension: "social",
     weight: 1.3,
-    category: "conspiracy",
+    category: "alt_right",
   },
   {
     id: 24,
     text: "Men and women have fundamentally different roles that should be maintained by society.",
     dimension: "social",
     weight: 1.2,
-    category: "gender",
+    category: "alt_right",
   },
   {
     id: 25,
     text: "Multiculturalism has failed and ethnic homogeneity creates stronger societies.",
     dimension: "social",
     weight: 1.4,
-    category: "ethnicity",
+    category: "alt_right",
   },
 
   // Progressive/LGBTQ+ Questions
@@ -246,7 +246,7 @@ export const questions: Question[] = [
     dimension: "economic",
     weight: 1.3,
     reverse: true,
-    category: "post-scarcity",
+    category: "falgsc",
     context: "Fully Automated Luxury Gay Space Communism perspective",
   },
   {
@@ -254,7 +254,7 @@ export const questions: Question[] = [
     text: "Space exploration and colonization should be humanity's top priority.",
     dimension: "economic",
     weight: 1.1,
-    category: "space",
+    category: "falgsc",
   },
   {
     id: 32,
@@ -262,7 +262,7 @@ export const questions: Question[] = [
     dimension: "economic",
     weight: 1.4,
     reverse: true,
-    category: "ai-management",
+    category: "falgsc",
   },
   {
     id: 33,
@@ -278,7 +278,7 @@ export const questions: Question[] = [
     dimension: "social",
     weight: 1.1,
     reverse: true,
-    category: "post-national",
+    category: "falgsc",
   },
 
   // Accelerationist Questions
@@ -295,21 +295,21 @@ export const questions: Question[] = [
     text: "Technological disruption should be embraced even if it destroys existing social structures.",
     dimension: "social",
     weight: 1.3,
-    category: "disruption",
+    category: "accelerationism",
   },
   {
     id: 37,
     text: "Climate change might be solved through radical technological intervention rather than lifestyle changes.",
     dimension: "economic",
     weight: 1.2,
-    category: "techno-solutionism",
+    category: "accelerationism",
   },
   {
     id: 38,
     text: "Democracy is too slow and inefficient for the pace of modern technological change.",
     dimension: "social",
     weight: 1.4,
-    category: "technocracy",
+    category: "accelerationism",
   },
 
   // Environmental and Future Questions
@@ -318,7 +318,7 @@ export const questions: Question[] = [
     text: "Eco-fascism may be necessary to prevent environmental collapse.",
     dimension: "social",
     weight: 1.3,
-    category: "eco-authoritarianism",
+    category: "eco_socialist",
     context: "Authoritarian environmentalism",
   },
   {
@@ -326,7 +326,7 @@ export const questions: Question[] = [
     text: "Individual carbon footprints should be monitored and regulated by the government.",
     dimension: "social",
     weight: 1.2,
-    category: "climate-control",
+    category: "eco_socialist",
   },
   {
     id: 41,
@@ -334,7 +334,7 @@ export const questions: Question[] = [
     dimension: "economic",
     weight: 1.3,
     reverse: true,
-    category: "degrowth",
+    category: "eco_socialist",
   },
   {
     id: 42,
@@ -373,7 +373,7 @@ export const questions: Question[] = [
     text: "Blockchain technology should replace traditional institutions like banks and governments.",
     dimension: "economic",
     weight: 1.2,
-    category: "decentralization",
+    category: "crypto_anarchist",
   },
 
   // Neo-Reactionary and Dark Enlightenment
@@ -382,28 +382,28 @@ export const questions: Question[] = [
     text: "Democracy has failed and should be replaced with more efficient forms of governance.",
     dimension: "social",
     weight: 1.4,
-    category: "anti-democracy",
+    category: "neo_reactionary",
   },
   {
     id: 48,
     text: "Some groups of people are naturally better suited for leadership than others.",
     dimension: "social",
     weight: 1.5,
-    category: "hierarchy",
+    category: "neo_reactionary",
   },
   {
     id: 49,
     text: "The Enlightenment and its values have led Western civilization astray.",
     dimension: "social",
     weight: 1.3,
-    category: "anti-enlightenment",
+    category: "neo_reactionary",
   },
   {
     id: 50,
     text: "Corporate city-states would be more efficient than traditional democratic governments.",
     dimension: "economic",
     weight: 1.2,
-    category: "corporate-governance",
+    category: "neo_reactionary",
   },
 
   // Bonus Modern Questions

@@ -7,17 +7,27 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Share2, Download, RotateCcw, Home, TrendingUp, Users, Brain } from "lucide-react"
 import { PoliticalCompass } from "@/components/political-compass"
-import { getIdeologyAnalysis, ideologyDetailsMap } from "@/lib/ideology-analysis"
+import { getIdeologyAnalysis, ideologyDetailsMap, IdeologyAnalysisInput } from "@/lib/ideology-analysis" // Import IdeologyAnalysisInput
 import { VisualDataBreakdown } from "@/components/visual-data-breakdown"
 import Link from "next/link"
 // Optional: Import Lightbulb if you decide to use it. For now, skipping.
 // import { Lightbulb } from "lucide-react";
+
+// Define CategoryTally locally as it's part of the Results structure
+interface CategoryTally {
+  stronglyAgree: number
+  agree: number
+  neutral: number
+  disagree: number
+  stronglyDisagree: number
+}
 
 interface Results {
   economic: number
   social: number
   answers: Record<number, number>
   timestamp: string
+  categoryTallies?: Record<string, CategoryTally> // Added categoryTallies
 }
 
 export default function ResultsPage() {
@@ -29,9 +39,10 @@ export default function ResultsPage() {
   useEffect(() => {
     const savedResults = localStorage.getItem("politicalCompassResults")
     if (savedResults) {
-      const parsedResults = JSON.parse(savedResults)
+      const parsedResults: Results = JSON.parse(savedResults) // Apply Results type
       setResults(parsedResults)
-      setAnalysis(getIdeologyAnalysis(parsedResults.economic, parsedResults.social))
+      // Pass the entire parsedResults object which should conform to IdeologyAnalysisInput
+      setAnalysis(getIdeologyAnalysis(parsedResults as IdeologyAnalysisInput))
       setTimeout(() => setIsLoading(false), 500) // Small delay for smooth animation
     } else {
       router.push("/test")

@@ -112,7 +112,23 @@ export const ideologyDetailsMap = new Map<string, { description: string }>([
   ],
 ])
 
-export function getIdeologyAnalysis(economic: number, social: number): IdeologyAnalysis {
+interface CategoryTally {
+  stronglyAgree: number
+  agree: number
+  neutral: number
+  disagree: number
+  stronglyDisagree: number
+}
+
+export interface IdeologyAnalysisInput {
+  economic: number
+  social: number
+  categoryTallies?: Record<string, CategoryTally> // categoryTallies from localStorage
+}
+
+export function getIdeologyAnalysis(input: IdeologyAnalysisInput): IdeologyAnalysis {
+  const { economic, social, categoryTallies = {} } = input
+
   const isLeft = economic < 0
   const isLibertarian = social < 0
   const economicIntensity = Math.abs(economic)
@@ -332,7 +348,88 @@ export function getIdeologyAnalysis(economic: number, social: number): IdeologyA
 
   const secondaryIdeologies: string[] = []
 
-  // Existing secondary ideologies logic - will be kept for now
+  // Categorical Trigger Logic
+  // Example for Accelerationist Tendencies
+  const accFocusTally = categoryTallies?.accelerationistFocus
+  if (accFocusTally) {
+    if ((accFocusTally.stronglyAgree >= 1 && accFocusTally.agree >= 1) || accFocusTally.stronglyAgree >= 2) {
+      if (primaryIdeology !== "Accelerationist Tendencies" && !secondaryIdeologies.includes("Accelerationist Tendencies")) {
+        secondaryIdeologies.push("Accelerationist Tendencies")
+      }
+    }
+  }
+
+  // Example for Post-Liberal
+  const postLibFocusTally = categoryTallies?.postLiberalFocus
+  if (postLibFocusTally) {
+    if ((postLibFocusTally.stronglyAgree >= 1 && postLibFocusTally.agree >= 1) || postLibFocusTally.stronglyAgree >= 2) {
+      if (primaryIdeology !== "Post-Liberal" && !secondaryIdeologies.includes("Post-Liberal")) {
+        secondaryIdeologies.push("Post-Liberal")
+      }
+    }
+  }
+
+  // Example for Anarchist Sympathies
+  const anarchistFocusTally = categoryTallies?.anarchistFocus
+  if (anarchistFocusTally) {
+    if ((anarchistFocusTally.stronglyAgree >= 1 && anarchistFocusTally.agree >= 1) || anarchistFocusTally.stronglyAgree >= 2) {
+      if (primaryIdeology !== "Anarchist Sympathies" && !secondaryIdeologies.includes("Anarchist Sympathies")) {
+        secondaryIdeologies.push("Anarchist Sympathies")
+      }
+    }
+  }
+
+  // Example for specific "Alt-Right" focus
+  const altRightFocusTally = categoryTallies?.altRightFocus
+  if (altRightFocusTally) {
+    if (altRightFocusTally.stronglyAgree >= 2 || (altRightFocusTally.stronglyAgree >= 1 && altRightFocusTally.agree >= 2)) {
+      if (primaryIdeology !== "Alt-Right" && !secondaryIdeologies.includes("Alt-Right")) {
+        secondaryIdeologies.push("Alt-Right")
+      }
+    }
+  }
+
+  // Example for specific "FALGSC" focus
+  const falgscFocusTally = categoryTallies?.falgscFocus
+  if (falgscFocusTally) {
+    if (falgscFocusTally.stronglyAgree >= 2 || (falgscFocusTally.stronglyAgree >= 1 && falgscFocusTally.agree >= 2)) {
+      if (primaryIdeology !== "Fully Automated Luxury Gay Space Communist" && !secondaryIdeologies.includes("Fully Automated Luxury Gay Space Communist")) {
+        secondaryIdeologies.push("Fully Automated Luxury Gay Space Communist")
+      }
+    }
+  }
+
+  // For Crypto-Anarchist
+  const cryptoFocusTally = categoryTallies?.cryptoAnarchistFocus
+  if (cryptoFocusTally) {
+    if ((cryptoFocusTally.stronglyAgree >= 1 && cryptoFocusTally.agree >= 1) || cryptoFocusTally.stronglyAgree >= 2) {
+      if (primaryIdeology !== "Crypto-Anarchist" && !secondaryIdeologies.includes("Crypto-Anarchist")) {
+        secondaryIdeologies.push("Crypto-Anarchist")
+      }
+    }
+  }
+
+  // For Neo-Reactionary
+  const neoReactionaryFocusTally = categoryTallies?.neoReactionaryFocus
+  if (neoReactionaryFocusTally) {
+    if ((neoReactionaryFocusTally.stronglyAgree >= 1 && neoReactionaryFocusTally.agree >= 1) || neoReactionaryFocusTally.stronglyAgree >= 2) {
+      if (primaryIdeology !== "Neo-Reactionary" && !secondaryIdeologies.includes("Neo-Reactionary")) {
+        secondaryIdeologies.push("Neo-Reactionary")
+      }
+    }
+  }
+
+  // For Eco-Socialist
+  const ecoSocialistFocusTally = categoryTallies?.ecoSocialistFocus
+  if (ecoSocialistFocusTally) {
+    if ((ecoSocialistFocusTally.stronglyAgree >= 1 && ecoSocialistFocusTally.agree >= 1) || ecoSocialistFocusTally.stronglyAgree >= 2) {
+      if (primaryIdeology !== "Eco-Socialist" && !secondaryIdeologies.includes("Eco-Socialist")) {
+        secondaryIdeologies.push("Eco-Socialist")
+      }
+    }
+  }
+
+  // Existing score-based secondary ideologies logic
   if (Math.abs(economic) < 3 && Math.abs(social) < 3) {
     if (!secondaryIdeologies.includes("Centrist")) {
       secondaryIdeologies.push("Centrist")

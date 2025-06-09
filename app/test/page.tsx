@@ -50,9 +50,24 @@ export default function TestPage() {
     let economicScore = 0
     let socialScore = 0
     let totalWeight = 0
+    const categoryTallies: Record<string, Record<string, number>> = {}
+
+    // Define categories to track for specific focuses
+    const trackedCategories: Record<string, string[]> = {
+      accelerationistFocus: ["accelerationism"], // "disruption", "techno-solutionism", "technocracy" were merged into "accelerationism" in questions.ts
+      postLiberalFocus: ["post_liberal", "neo_reactionary", "alt_right"], // Includes NRx and Alt-Right as forms of post-liberalism for broader theme tracking. "nationalism", "ethnicity", "hierarchy", "anti-democracy", "anti-enlightenment" were changed.
+      anarchistFocus: ["anarchist", "crypto_anarchist", "cooperative", "decentralization"], // decentralization was changed to crypto_anarchist or anarchist
+      falgscFocus: ["falgsc"],
+      cryptoAnarchistFocus: ["crypto_anarchist"],
+      neoReactionaryFocus: ["neo_reactionary"],
+      ecoSocialistFocus: ["eco_socialist"],
+      altRightFocus: ["alt_right"],
+    }
+
+    const answerMap = ["stronglyDisagree", "disagree", "neutral", "agree", "stronglyAgree"]
 
     questions.forEach((question, index) => {
-      const answer = answers[index]
+      const answer = answers[index] // This is the numerical value 0-4
       if (answer !== undefined) {
         const weight = question.weight || 1
         const adjustedScore = (answer - 2) * weight // Convert 0-4 scale to -2 to +2
@@ -63,18 +78,37 @@ export default function TestPage() {
           socialScore += adjustedScore * (question.reverse ? -1 : 1)
         }
         totalWeight += weight
+
+        // Tally answers for tracked categories
+        const qCategory = question.category
+        if (qCategory) {
+          for (const focusName in trackedCategories) {
+            if (trackedCategories[focusName].includes(qCategory)) {
+              if (!categoryTallies[focusName]) {
+                categoryTallies[focusName] = { stronglyAgree: 0, agree: 0, neutral: 0, disagree: 0, stronglyDisagree: 0 }
+              }
+              const answerString = answerMap[answer]
+              if (answerString) {
+                categoryTallies[focusName][answerString]++
+              }
+            }
+          }
+        }
       }
     })
 
     // Normalize scores to -10 to +10 range
-    const normalizedEconomic = (economicScore / totalWeight) * 5
-    const normalizedSocial = (socialScore / totalWeight) * 5
+    // Handle cases where totalWeight might be zero if no questions are answered (though UI prevents this path)
+    const normalizedEconomic = totalWeight === 0 ? 0 : (economicScore / totalWeight) * 5
+    const normalizedSocial = totalWeight === 0 ? 0 : (socialScore / totalWeight) * 5
+
 
     return {
       economic: Math.max(-10, Math.min(10, normalizedEconomic)),
       social: Math.max(-10, Math.min(10, normalizedSocial)),
       answers,
       timestamp: new Date().toISOString(),
+      categoryTallies, // Add the tallies to the results
     }
   }
 
