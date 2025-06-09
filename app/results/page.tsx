@@ -10,6 +10,7 @@ import { PoliticalCompass } from "@/components/political-compass"
 import { getIdeologyAnalysis, ideologyDetailsMap, IdeologyAnalysisInput } from "@/lib/ideology-analysis" // Import IdeologyAnalysisInput
 import { VisualDataBreakdown } from "@/components/visual-data-breakdown"
 import Link from "next/link"
+import { questions } from "@/lib/questions"
 // Optional: Import Lightbulb if you decide to use it. For now, skipping.
 // import { Lightbulb } from "lucide-react";
 
@@ -39,11 +40,46 @@ export default function ResultsPage() {
   useEffect(() => {
     const savedResults = localStorage.getItem("politicalCompassResults")
     if (savedResults) {
-      const parsedResults: Results = JSON.parse(savedResults) // Apply Results type
+      let parsedResults: Results = JSON.parse(savedResults)
+      // If categoryTallies is missing, recalculate it from answers
+      if (!parsedResults.categoryTallies) {
+        // Recalculate categoryTallies logic (copied from test page)
+        const trackedCategories: Record<string, string[]> = {
+          accelerationistFocus: ["accelerationism"],
+          postLiberalFocus: ["post_liberal", "neo_reactionary", "alt_right"],
+          anarchistFocus: ["anarchist", "crypto_anarchist", "cooperative", "decentralization"],
+          falgscFocus: ["falgsc"],
+          cryptoAnarchistFocus: ["crypto_anarchist"],
+          neoReactionaryFocus: ["neo_reactionary"],
+          ecoSocialistFocus: ["eco_socialist"],
+          altRightFocus: ["alt_right"],
+        }
+        const answerMap = ["stronglyDisagree", "disagree", "neutral", "agree", "stronglyAgree"]
+        const categoryTallies: Record<string, CategoryTally> = {}
+        questions.forEach((question, index) => {
+          const answer = parsedResults.answers[index]
+          if (answer !== undefined) {
+            const qCategory = question.category
+            if (qCategory) {
+              for (const focusName in trackedCategories) {
+                if (trackedCategories[focusName].includes(qCategory)) {
+                  if (!categoryTallies[focusName]) {
+                    categoryTallies[focusName] = { stronglyAgree: 0, agree: 0, neutral: 0, disagree: 0, stronglyDisagree: 0 }
+                  }
+                  const answerString = answerMap[answer] as keyof CategoryTally
+                  if (answerString) {
+                    categoryTallies[focusName][answerString]++
+                  }
+                }
+              }
+            }
+          }
+        })
+        parsedResults = { ...parsedResults, categoryTallies }
+      }
       setResults(parsedResults)
-      // Pass the entire parsedResults object which should conform to IdeologyAnalysisInput
       setAnalysis(getIdeologyAnalysis(parsedResults as IdeologyAnalysisInput))
-      setTimeout(() => setIsLoading(false), 500) // Small delay for smooth animation
+      setTimeout(() => setIsLoading(false), 500)
     } else {
       router.push("/test")
     }
