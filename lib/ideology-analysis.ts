@@ -339,7 +339,8 @@ export function getIdeologyAnalysis(economic: number, social: number): IdeologyA
     }
   }
 
-  if (economicIntensity > 6 || socialIntensity > 6) {
+  // Refined condition for "Accelerationist Tendencies"
+  if (economicIntensity > 4.5 || socialIntensity > 4.5) {
     if (!secondaryIdeologies.includes("Accelerationist Tendencies")) {
       secondaryIdeologies.push("Accelerationist Tendencies")
     }
@@ -350,13 +351,15 @@ export function getIdeologyAnalysis(economic: number, social: number): IdeologyA
   // For now, we are adding the new logic additively.
   // A future refactor might integrate these more cleanly.
 
-  if (social < -5) { // This is a broad condition for Post-Liberal
+  // Refined condition for "Post-Liberal"
+  if (social < -4.5 && socialIntensity > 4.5) {
     if (!secondaryIdeologies.includes("Post-Liberal")) {
       secondaryIdeologies.push("Post-Liberal")
     }
   }
 
-  if (economic < -5 && social < -3) { // This is a broad condition for Anarchist Sympathies
+  // Refined condition for "Anarchist Sympathies"
+  if (economic < -4.5 && social < -2.5 && (economicIntensity > 4.5 || socialIntensity > 2.5)) {
     if (!secondaryIdeologies.includes("Anarchist Sympathies")) {
       secondaryIdeologies.push("Anarchist Sympathies")
     }
@@ -417,15 +420,6 @@ export function getIdeologyAnalysis(economic: number, social: number): IdeologyA
     characteristics,
     notableFigures,
     secondaryIdeologies: uniqueSecondaryIdeologies,
-    modernContext,
-    color,
-  }
-}
-    primaryIdeology,
-    description,
-    characteristics,
-    notableFigures,
-    secondaryIdeologies,
     modernContext,
     color,
   }
