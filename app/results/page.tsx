@@ -7,15 +7,28 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Share2, Download, RotateCcw, Home, TrendingUp, Users, Brain } from "lucide-react"
 import { PoliticalCompass } from "@/components/political-compass"
-import { getIdeologyAnalysis } from "@/lib/ideology-analysis"
+import { getIdeologyAnalysis, ideologyDetailsMap, IdeologyAnalysisInput } from "@/lib/ideology-analysis" // Import IdeologyAnalysisInput
 import { VisualDataBreakdown } from "@/components/visual-data-breakdown"
 import Link from "next/link"
+import { questions } from "@/lib/questions"
+// Optional: Import Lightbulb if you decide to use it. For now, skipping.
+// import { Lightbulb } from "lucide-react";
+
+// Define CategoryTally locally as it's part of the Results structure
+interface CategoryTally {
+  stronglyAgree: number
+  agree: number
+  neutral: number
+  disagree: number
+  stronglyDisagree: number
+}
 
 interface Results {
   economic: number
   social: number
   answers: Record<number, number>
   timestamp: string
+  categoryTallies?: Record<string, CategoryTally> // Added categoryTallies
 }
 
 export default function ResultsPage() {
@@ -27,10 +40,46 @@ export default function ResultsPage() {
   useEffect(() => {
     const savedResults = localStorage.getItem("politicalCompassResults")
     if (savedResults) {
-      const parsedResults = JSON.parse(savedResults)
+      let parsedResults: Results = JSON.parse(savedResults)
+      // If categoryTallies is missing, recalculate it from answers
+      if (!parsedResults.categoryTallies) {
+        // Recalculate categoryTallies logic (copied from test page)
+        const trackedCategories: Record<string, string[]> = {
+          accelerationistFocus: ["accelerationism"],
+          postLiberalFocus: ["post_liberal", "neo_reactionary", "alt_right"],
+          anarchistFocus: ["anarchist", "crypto_anarchist", "cooperative", "decentralization"],
+          falgscFocus: ["falgsc"],
+          cryptoAnarchistFocus: ["crypto_anarchist"],
+          neoReactionaryFocus: ["neo_reactionary"],
+          ecoSocialistFocus: ["eco_socialist"],
+          altRightFocus: ["alt_right"],
+        }
+        const answerMap = ["stronglyDisagree", "disagree", "neutral", "agree", "stronglyAgree"]
+        const categoryTallies: Record<string, CategoryTally> = {}
+        questions.forEach((question, index) => {
+          const answer = parsedResults.answers[index]
+          if (answer !== undefined) {
+            const qCategory = question.category
+            if (qCategory) {
+              for (const focusName in trackedCategories) {
+                if (trackedCategories[focusName].includes(qCategory)) {
+                  if (!categoryTallies[focusName]) {
+                    categoryTallies[focusName] = { stronglyAgree: 0, agree: 0, neutral: 0, disagree: 0, stronglyDisagree: 0 }
+                  }
+                  const answerString = answerMap[answer] as keyof CategoryTally
+                  if (answerString) {
+                    categoryTallies[focusName][answerString]++
+                  }
+                }
+              }
+            }
+          }
+        })
+        parsedResults = { ...parsedResults, categoryTallies }
+      }
       setResults(parsedResults)
-      setAnalysis(getIdeologyAnalysis(parsedResults.economic, parsedResults.social))
-      setTimeout(() => setIsLoading(false), 500) // Small delay for smooth animation
+      setAnalysis(getIdeologyAnalysis(parsedResults as IdeologyAnalysisInput))
+      setTimeout(() => setIsLoading(false), 500)
     } else {
       router.push("/test")
     }
@@ -197,18 +246,10 @@ export default function ResultsPage() {
                   </ul>
                 </div>
 
-                {analysis.secondaryIdeologies.length > 0 && (
-                  <div>
-                    <h4 className="font-semibold mb-2 text-gray-800">Secondary Tendencies</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {analysis.secondaryIdeologies.map((ideology: string, index: number) => (
-                        <Badge key={index} variant="outline" className="text-xs">
-                          {ideology}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                {/*
+                  The existing secondary ideologies display as badges was here.
+                  It has been removed as per instructions to create a new detailed card.
+                */}
               </CardContent>
             </Card>
           </div>
@@ -244,6 +285,31 @@ export default function ResultsPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Explore Related Ideologies Card */}
+          {analysis.secondaryIdeologies && analysis.secondaryIdeologies.length > 0 && (
+            <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm mb-8">
+              <CardHeader className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-t-lg">
+                <CardTitle className="flex items-center gap-2">
+                  {/* <Lightbulb className="w-5 h-5 text-yellow-600" /> */}
+                  Explore Related Ideologies
+                </CardTitle>
+                <CardDescription>These are other ideological areas you show some alignment with.</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                {analysis.secondaryIdeologies.map((ideology: string, index: number) => {
+                  const details = ideologyDetailsMap.get(ideology)
+                  return (
+                    <div key={index} className="p-3 rounded-lg bg-gray-50 border border-gray-200 hover:shadow-sm transition-shadow">
+                      <h4 className="font-semibold text-gray-800 mb-1">{ideology}</h4>
+                      {details && <p className="text-sm text-gray-600">{details.description}</p>}
+                      {!details && <p className="text-sm text-gray-500">Description not available.</p>}
+                    </div>
+                  )
+                })}
+              </CardContent>
+            </Card>
+          )}
 
           {/* Test Metadata */}
           <div className="text-center text-sm text-gray-500">

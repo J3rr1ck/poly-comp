@@ -8,7 +8,127 @@ interface IdeologyAnalysis {
   color: string
 }
 
-export function getIdeologyAnalysis(economic: number, social: number): IdeologyAnalysis {
+export const ideologyDetailsMap = new Map<string, { description: string }>([
+  [
+    "Fully Automated Luxury Gay Space Communist",
+    {
+      description:
+        "Envisions a post-scarcity future with advanced technology, universal LGBTQ+ rights, and communist expansion to space.",
+    },
+  ],
+  [
+    "Libertarian Socialist",
+    {
+      description:
+        "Advocates for maximal individual freedom alongside collective ownership of production, opposing state and corporate control.",
+    },
+  ],
+  [
+    "Social Liberal",
+    {
+      description: "Supports a mixed economy with strong social safety nets and robust individual freedoms and rights.",
+    },
+  ],
+  [
+    "Crypto-Anarchist",
+    {
+      description:
+        "Advocates for using technology like cryptography and digital currencies to create a stateless, voluntary society.",
+    },
+  ],
+  [
+    "Classical Liberal",
+    {
+      description: "Emphasizes free markets, individual liberty, and limited government intervention in economic and personal life.",
+    },
+  ],
+  [
+    "Moderate Libertarian",
+    {
+      description:
+        "Favors free markets and personal liberty while accepting a pragmatic, limited role for government in certain areas.",
+    },
+  ],
+  [
+    "Eco-Socialist",
+    {
+      description:
+        "Believes strong state action is vital to address climate change and inequality, potentially restructuring the economy on socialist lines.",
+    },
+  ],
+  [
+    "Social Democrat",
+    {
+      description:
+        "Supports a strong welfare state, government regulation, and democratic institutions to achieve social and economic equality.",
+    },
+  ],
+  [
+    "Neo-Reactionary",
+    {
+      description:
+        "Rejects democracy for more hierarchical governance models, sometimes envisioning corporate city-states or monarchies.",
+    },
+  ],
+  [
+    "Alt-Right",
+    {
+      description: "Focuses on cultural preservation and identity, often with nationalist and traditionalist social views.",
+    },
+  ],
+  [
+    "Conservative",
+    {
+      description: "Supports free-market principles combined with traditional social values and strong, established institutions.",
+    },
+  ],
+  [
+    "Centrist",
+    {
+      description:
+        "Holds a moderate political position, balancing elements from different ideologies to find pragmatic solutions.",
+    },
+  ],
+  [
+    "Accelerationist Tendencies",
+    {
+      description:
+        "Believes in accelerating societal change, often through technology or radical politics, towards a transformed future.",
+    },
+  ],
+  [
+    "Post-Liberal",
+    {
+      description:
+        "Critiques aspects of classical liberalism, often emphasizing community, tradition, or new forms of social order.",
+    },
+  ],
+  [
+    "Anarchist Sympathies",
+    {
+      description:
+        "Expresses affinity with anarchist ideals such as decentralization, voluntary association, and skepticism of authority.",
+    },
+  ],
+])
+
+interface CategoryTally {
+  stronglyAgree: number
+  agree: number
+  neutral: number
+  disagree: number
+  stronglyDisagree: number
+}
+
+export interface IdeologyAnalysisInput {
+  economic: number
+  social: number
+  categoryTallies?: Record<string, CategoryTally> // categoryTallies from localStorage
+}
+
+export function getIdeologyAnalysis(input: IdeologyAnalysisInput): IdeologyAnalysis {
+  const { economic, social, categoryTallies = {} } = input
+
   const isLeft = economic < 0
   const isLibertarian = social < 0
   const economicIntensity = Math.abs(economic)
@@ -228,29 +348,175 @@ export function getIdeologyAnalysis(economic: number, social: number): IdeologyA
 
   const secondaryIdeologies: string[] = []
 
-  // Add modern ideological tendencies
+  // Categorical Trigger Logic
+  // Example for Accelerationist Tendencies
+  const accFocusTally = categoryTallies?.accelerationistFocus
+  if (accFocusTally) {
+    if ((accFocusTally.stronglyAgree >= 1 && accFocusTally.agree >= 1) || accFocusTally.stronglyAgree >= 2) {
+      if (primaryIdeology !== "Accelerationist Tendencies" && !secondaryIdeologies.includes("Accelerationist Tendencies")) {
+        secondaryIdeologies.push("Accelerationist Tendencies")
+      }
+    }
+  }
+
+  // Example for Post-Liberal
+  const postLibFocusTally = categoryTallies?.postLiberalFocus
+  if (postLibFocusTally) {
+    if ((postLibFocusTally.stronglyAgree >= 1 && postLibFocusTally.agree >= 1) || postLibFocusTally.stronglyAgree >= 2) {
+      if (primaryIdeology !== "Post-Liberal" && !secondaryIdeologies.includes("Post-Liberal")) {
+        secondaryIdeologies.push("Post-Liberal")
+      }
+    }
+  }
+
+  // Example for Anarchist Sympathies
+  const anarchistFocusTally = categoryTallies?.anarchistFocus
+  if (anarchistFocusTally) {
+    if ((anarchistFocusTally.stronglyAgree >= 1 && anarchistFocusTally.agree >= 1) || anarchistFocusTally.stronglyAgree >= 2) {
+      if (primaryIdeology !== "Anarchist Sympathies" && !secondaryIdeologies.includes("Anarchist Sympathies")) {
+        secondaryIdeologies.push("Anarchist Sympathies")
+      }
+    }
+  }
+
+  // Example for specific "Alt-Right" focus
+  const altRightFocusTally = categoryTallies?.altRightFocus
+  if (altRightFocusTally) {
+    if (altRightFocusTally.stronglyAgree >= 2 || (altRightFocusTally.stronglyAgree >= 1 && altRightFocusTally.agree >= 2)) {
+      if (primaryIdeology !== "Alt-Right" && !secondaryIdeologies.includes("Alt-Right")) {
+        secondaryIdeologies.push("Alt-Right")
+      }
+    }
+  }
+
+  // Example for specific "FALGSC" focus
+  const falgscFocusTally = categoryTallies?.falgscFocus
+  if (falgscFocusTally) {
+    if (falgscFocusTally.stronglyAgree >= 2 || (falgscFocusTally.stronglyAgree >= 1 && falgscFocusTally.agree >= 2)) {
+      if (primaryIdeology !== "Fully Automated Luxury Gay Space Communist" && !secondaryIdeologies.includes("Fully Automated Luxury Gay Space Communist")) {
+        secondaryIdeologies.push("Fully Automated Luxury Gay Space Communist")
+      }
+    }
+  }
+
+  // For Crypto-Anarchist
+  const cryptoFocusTally = categoryTallies?.cryptoAnarchistFocus
+  if (cryptoFocusTally) {
+    if ((cryptoFocusTally.stronglyAgree >= 1 && cryptoFocusTally.agree >= 1) || cryptoFocusTally.stronglyAgree >= 2) {
+      if (primaryIdeology !== "Crypto-Anarchist" && !secondaryIdeologies.includes("Crypto-Anarchist")) {
+        secondaryIdeologies.push("Crypto-Anarchist")
+      }
+    }
+  }
+
+  // For Neo-Reactionary
+  const neoReactionaryFocusTally = categoryTallies?.neoReactionaryFocus
+  if (neoReactionaryFocusTally) {
+    if ((neoReactionaryFocusTally.stronglyAgree >= 1 && neoReactionaryFocusTally.agree >= 1) || neoReactionaryFocusTally.stronglyAgree >= 2) {
+      if (primaryIdeology !== "Neo-Reactionary" && !secondaryIdeologies.includes("Neo-Reactionary")) {
+        secondaryIdeologies.push("Neo-Reactionary")
+      }
+    }
+  }
+
+  // For Eco-Socialist
+  const ecoSocialistFocusTally = categoryTallies?.ecoSocialistFocus
+  if (ecoSocialistFocusTally) {
+    if ((ecoSocialistFocusTally.stronglyAgree >= 1 && ecoSocialistFocusTally.agree >= 1) || ecoSocialistFocusTally.stronglyAgree >= 2) {
+      if (primaryIdeology !== "Eco-Socialist" && !secondaryIdeologies.includes("Eco-Socialist")) {
+        secondaryIdeologies.push("Eco-Socialist")
+      }
+    }
+  }
+
+  // Existing score-based secondary ideologies logic
   if (Math.abs(economic) < 3 && Math.abs(social) < 3) {
-    secondaryIdeologies.push("Centrist")
+    if (!secondaryIdeologies.includes("Centrist")) {
+      secondaryIdeologies.push("Centrist")
+    }
   }
 
-  if (economicIntensity > 6 || socialIntensity > 6) {
-    secondaryIdeologies.push("Accelerationist Tendencies")
+  // Refined condition for "Accelerationist Tendencies"
+  if (economicIntensity > 4.5 || socialIntensity > 4.5) {
+    if (!secondaryIdeologies.includes("Accelerationist Tendencies")) {
+      secondaryIdeologies.push("Accelerationist Tendencies")
+    }
   }
 
-  if (social < -5) {
-    secondaryIdeologies.push("Post-Liberal")
+  // Note: The original logic for Post-Liberal and Anarchist Sympathies might overlap
+  // or conflict with the new detailed ideology definitions.
+  // For now, we are adding the new logic additively.
+  // A future refactor might integrate these more cleanly.
+
+  // Refined condition for "Post-Liberal"
+  if (social < -4.5 && socialIntensity > 4.5) {
+    if (!secondaryIdeologies.includes("Post-Liberal")) {
+      secondaryIdeologies.push("Post-Liberal")
+    }
   }
 
-  if (economic < -5 && social < -3) {
-    secondaryIdeologies.push("Anarchist Sympathies")
+  // Refined condition for "Anarchist Sympathies"
+  if (economic < -4.5 && social < -2.5 && (economicIntensity > 4.5 || socialIntensity > 2.5)) {
+    if (!secondaryIdeologies.includes("Anarchist Sympathies")) {
+      secondaryIdeologies.push("Anarchist Sympathies")
+    }
   }
+
+  // Define alternative/future ideologies and their conditions
+  const alternativeIdeologies = [
+    {
+      name: "Fully Automated Luxury Gay Space Communist",
+      isPrimary: () => economic < 0 && isLibertarian && economicIntensity > 7 && socialIntensity > 7,
+      isSecondary: () => economic < 0 && isLibertarian && economicIntensity > 5 && socialIntensity > 5,
+    },
+    {
+      name: "Crypto-Anarchist",
+      isPrimary: () => economic > 0 && isLibertarian && economicIntensity > 7 && socialIntensity > 7,
+      isSecondary: () => economic > 0 && isLibertarian && economicIntensity > 5 && socialIntensity > 5,
+    },
+    {
+      name: "Neo-Reactionary",
+      isPrimary: () => economic > 0 && !isLibertarian && economicIntensity > 7 && socialIntensity > 7,
+      isSecondary: () => economic > 0 && !isLibertarian && economicIntensity > 5 && socialIntensity > 5,
+    },
+    {
+      name: "Eco-Socialist",
+      isPrimary: () => economic < 0 && !isLibertarian && economicIntensity > 6 && socialIntensity > 6,
+      isSecondary: () => economic < 0 && !isLibertarian && economicIntensity > 4 && socialIntensity > 4,
+    },
+    {
+      name: "Alt-Right",
+      isPrimary: () => economic > 0 && !isLibertarian && socialIntensity > 5 && economicIntensity < 3,
+      isSecondary: () => economic > 0 && !isLibertarian && socialIntensity > 3 && economicIntensity < 5,
+    },
+    // "Accelerationist Tendencies", "Post-Liberal", "Anarchist Sympathies" are already handled by existing broader logic.
+    // We can refine this later if needed to use these specific structures.
+  ]
+
+  for (const altIdeology of alternativeIdeologies) {
+    if (altIdeology.name !== primaryIdeology && altIdeology.isSecondary()) {
+      if (!secondaryIdeologies.includes(altIdeology.name)) {
+        // Check if it meets primary conditions for *this* specific alt ideology
+        // This check is implicitly handled by `altIdeology.name !== primaryIdeology`
+        // because if it were primary for this altIdeology, it would be the primaryIdeology.
+        // However, the primaryIdeology might be a *different* one (e.g. Libertarian Socialist)
+        // while still meeting secondary conditions for FALGSC.
+        secondaryIdeologies.push(altIdeology.name)
+      }
+    }
+  }
+
+  // Ensure existing secondary ideologies are not duplicated if they match new ones
+  // This is a simple way to do it for now. A more robust solution might involve
+  // unifying the definition of all secondary ideologies.
+  const uniqueSecondaryIdeologies = Array.from(new Set(secondaryIdeologies))
 
   return {
     primaryIdeology,
     description,
     characteristics,
     notableFigures,
-    secondaryIdeologies,
+    secondaryIdeologies: uniqueSecondaryIdeologies,
     modernContext,
     color,
   }
